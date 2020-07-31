@@ -1,0 +1,2 @@
+# Git-Crypt all the customize things.
+taccsite_cms/custom_settings/** filter=git-crypt diff=git-crypt

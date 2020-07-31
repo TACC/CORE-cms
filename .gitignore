@@ -20,7 +20,7 @@
 repo_name.var
 
 # Secrets and Customizations
-taccsite_cms/secrets.py
+
 *.custom.yml
 
 # Makefile var
