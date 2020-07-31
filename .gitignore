@@ -20,7 +20,6 @@
 repo_name.var
 
 # Secrets and Customizations
-
 *.custom.yml
 
 # Makefile var
