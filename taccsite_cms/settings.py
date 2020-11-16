@@ -346,8 +346,7 @@ if current_secrets._FEATURES['blog']:
     META_USE_SITES = True
     META_USE_OG_PROPERTIES = True
     META_USE_TWITTER_PROPERTIES = True
-    META_USE_GOOGLEPLUS_PROPERTIES = True # django-meta 1.x+
-    # META_USE_SCHEMAORG_PROPERTIES=True  # django-meta 2.x+
+    META_USE_SCHEMAORG_PROPERTIES=True
 
     # Blog/News: Set custom paths for templates
     BLOG_PLUGIN_TEMPLATE_FOLDERS = (
