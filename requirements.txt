@@ -41,7 +41,10 @@ djangocms-forms==0.2.5
 djangocms-googlemap==2.0.0
 djangocms-icon==2.0.0
 djangocms-link==3.0.0
-djangocms-page-meta==0.10.0
+# Pull the latest from `develop` for `djangocms-page-meta`
+# FAQ: No new release to handle update of dependency `django-meta` to `2.0.0`
+# djangocms-page-meta==0.10.0
+-e git+https://github.com/nephila/djangocms-page-meta.git@develop#egg=djangocms-page-meta
 djangocms-picture==3.0.0
 djangocms-snippet==3.0.0
 djangocms-style==3.0.0
