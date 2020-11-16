@@ -16,7 +16,7 @@ django-formtools==2.2
 django-haystack==3.0
 django-ipware==3.0.1
 django-js-asset==1.2.2
-django-meta==1.7.0
+django-meta==2.0.0
 django-mptt==0.11.0
 django-parler==2.2
 django-polymorphic==3.0.0
@@ -33,7 +33,7 @@ django-treebeard==4.3.1
 djangocms-admin-style==2.0.0
 djangocms-apphook-setup==0.4.1
 djangocms-attributes-field==2.0.0
-djangocms-blog==1.1.1
+djangocms-blog==1.2.1
 djangocms-bootstrap4==2.0.0
 djangocms-column==1.11.0
 djangocms-file==3.0.0
