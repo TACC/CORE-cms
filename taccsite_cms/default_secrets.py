@@ -1,5 +1,6 @@
 # TACC CMS SITE TEMPLATE SETTINGS.
-# DEFAULT VALUES - CHANGE FOR LIVE USE.
+# DEFAULT VALUES.
+# CHANGE BEFOR DEV/PREPROD/PRODUCTION DEPLOYMENT.
 
 ########################
 # DJANGO SETTINGS
@@ -7,24 +8,47 @@
 
 _SECRET_KEY = 'replacethiswithareallysecureandcomplexsecretkeystring'
 _DEBUG = True       # False for Prod.
+_CONSOLE_LOG_ENABLED = False    # Boolean check to turn on/off console logging statements.
+
 # Specify allowed hosts or use an asterisk to allow any host and simplify the config.
 # _ALLOWED_HOSTS = ['hostname.tacc.utexas.edu', 'host.ip.v4.address', '0.0.0.0', 'localhost', '127.0.0.1']   # In production.
 _ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', '*']   # In development.
+
+# Boolean check to see if ldap is being used by the site.
+# Requires django-auth-ldap ≥ 2.0.0
+_LDAP_ENABLED = False
+
+# Boolean check to determine the appropriate database settings when using containers.
+_USING_CONTAINERS = True
 
 ########################
 # DATABASE SETTINGS
 ########################
 
-_DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'taccsite',
-        'USER': 'postgresadmin',
-        'PASSWORD': 'taccforever' ,   # Change for deployment configuration.
-        'HOST': 'localhost',                # 'localhost' in demo/local-dev/SAD CMS deployments, 'taccsite_postgres' in containerized portal deployments.
-        'PORT': '5432',
+if _USING_CONTAINERS:
+    # used in container deployments.
+    _DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'PORT': '5432',
+            'NAME': 'taccsite',
+            'USER': 'postgresadmin',
+            'PASSWORD': 'taccforever', # Change before live deployment.
+            'HOST': 'core_cms_postgres'
+        }
     }
-}
+else:
+    # used in local dev, venv or manual deployments.
+    _DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'PORT': '5432',
+            'NAME': 'taccsite',
+            'USER': 'postgresadmin',
+            'PASSWORD': 'taccforever', # Change before live deployment.
+            'HOST': 'localhost'
+        }
+    }
 
 ########################
 # DJANGO CMS SETTINGS
@@ -34,9 +58,10 @@ _DATABASES = {
 _SITE_ID = 1
 _CMS_TEMPLATES = (
     # Customize this
+    # FAQ: First template is default template
+    # REF: http://docs.django-cms.org/en/latest/how_to/install.html#templates
     ('fullwidth.html', 'Fullwidth'),
-    ('sidebar_left.html', 'Sidebar Left'),
-    ('sidebar_right.html', 'Sidebar Right')
+    ('example-cms/templates/fullwidth.html', 'Fullwidth (Custom Example)')
 )
 
 ########################
@@ -48,22 +73,86 @@ _GOOGLE_ANALYTICS_PROPERTY_ID = "UA-123ABC@%$&-#"
 _GOOGLE_ANALYTICS_PRELOAD = True
 
 ########################
-# CUSTOM SITE SETTINGS
+# CMS FORMS
 ########################
 
+# Create CMS Forms
+# SEE: https://pypi.org/project/djangocms-forms/
+# SEE: https://www.google.com/recaptcha/admin/create
 _DJANGOCMS_FORMS_RECAPTCHA_PUBLIC_KEY = ""
 _DJANGOCMS_FORMS_RECAPTCHA_SECRET_KEY = ""
+
+########################
+# ELASTICSEARCH
+########################
+
+_ES_AUTH = 'username:password'
+_ES_HOSTS = 'http://elasticsearch:9200'
+_ES_INDEX_PREFIX = 'cms-dev-{}'
+_ES_DOMAIN = 'http://localhost:8000'
+
+########################
+# FEATURES
+########################
+
+"""
+Features for the CMS that can be turned either ON or OFF
+
+Usage:
+
+- For baked-in features, like BRANDING or PORTAL, see relevant section instead.
+- For optional features, look below, and enable feature(s) via _FEATURES list.
+
+Baked-In Feature Setting Example.
+
+# Desctipion of feature X
+# SEE: [link to user/div guide about feature]
+_FEATURE_A = "someValue"
+
+Optional Feature Toggle Example.
+
+_FEATURES = {
+    # Desctipion of feature X
+    # SEE: [link to user/dev guide about feature]
+    "X": True,
+
+    # Desctipion of feature Y
+    # SEE: [link to user/dev guide about feature]
+    "Y": False,
+
+    # Desctipion of feature Z
+    # SEE: [link to user/dev guide about feature]
+    "Z": True,
+}
+
+"""
+
+_FEATURES = {
+    # Blog/News & Social Media Metadata
+    # GL-42: Split this into two features
+    # SEE: https://confluence.tacc.utexas.edu/x/EwDeCg
+    # SEE: https://confluence.tacc.utexas.edu/x/FAA9Cw
+    "blog": False,
+}
+
+########################
+# BRANDING & LOGOS
+########################
+
+# Branding settings for portal and navigation.
 
 """
 Additional Branding and Portal Logos for Partner & Affiliate Organizations
 
 Usage:
 
-- For each logo used in the templating, add new settings values (see example below).
-- New branding settings must be added to the _BRANDING list.
-- The order of the _BRANDING list determines the rendering order of the elements.
-- The portal _ANORG_LOGO settings must be assigned to the _LOGO variable.
-- The selector styles for new items set in the configuration objects should exist in the portal css.
+- For each beand used in the templating, add corresponding new settings values to this file  (see example below).
+- New branding settings must be added to the _BRANDING list to render in the template.
+- The order of the _BRANDING list determines the rendering order of the elements in the template.
+- The portal logo setting must be assigned to the _LOGO variable to render in the template.
+- The following VALUES for new elements set in the configuration object must exist in the portal css as well:
+    - Any new selectors or css styles (add to /taccsite_cms/static/site_cms/css/src/_imports/branding_logos.css)
+    - Image files being references (add to /taccsite_cms/static/site_cms/img/org_logos)
 
 Values to populate:
 
@@ -82,7 +171,7 @@ Branding Configuration Example.
 
 _ANORG_BRANDING = [
    "anorg",
-   "site_cms/images/org_logos/anorg-logo.png"
+   "site_cms/img/org_logos/anorg-logo.png"
    "branding-anorg",
    "https://www.anorg.com/"
    "_blank",
@@ -95,7 +184,7 @@ Logo Configuration Example.
 
 _ANORG_LOGO = [
    "anorg",
-   "site_cms/images/org_logos/anorg-logo.png"
+   "site_cms/img/org_logos/anorg-logo.png"
    "branding-anorg",
    "/"
    "_self",
@@ -106,22 +195,11 @@ _ANORG_LOGO = [
 """
 
 ########################
-# BRANDING.
-
-_NSF_BRANDING = [
-    "nsf",
-    "site_cms/images/org_logos/nsf-white.png",
-    "branding-nsf",
-    "https://www.nsf.gov/",
-    "_blank",
-    "NSF Logo",
-    "anonymous",
-    "True"
-]
+# BRANDING
 
 _TACC_BRANDING = [
     "tacc",
-    "site_cms/images/org_logos/tacc-white.png",
+    "site_cms/img/org_logos/tacc-white.png",
     "branding-tacc",
     "https://www.tacc.utexas.edu/",
     "_blank",
@@ -132,7 +210,7 @@ _TACC_BRANDING = [
 
 _UTEXAS_BRANDING =  [
     "utexas",
-    "site_cms/images/org_logos/utaustin-white.png",
+    "site_cms/img/org_logos/utaustin-white.png",
     "branding-utaustin",
     "https://www.utexas.edu/",
     "_blank",
@@ -141,28 +219,26 @@ _UTEXAS_BRANDING =  [
     "True"
 ]
 
-_UHAWAII_BRANDING = [
-    "uhawaii",
-    "site_cms/images/org_logos/hawaii-header-trimmed.png",
-    "branding-uhawaii",
-    "https://www.hawaii.edu/",
+_NSF_BRANDING = [
+    "nsf",
+    "site_cms/img/org_logos/nsf-white.png",
+    "branding-nsf",
+    "https://www.nsf.gov/",
     "_blank",
-    "University of Hawaii Logo",
+    "NSF Logo",
     "anonymous",
     "True"
 ]
 
 _BRANDING = [ _TACC_BRANDING, _UTEXAS_BRANDING ]        # Default TACC Portal.
 # _BRANDING = [ _NSF_BRANDING, _TACC_BRANDING, _UTEXAS_BRANDING ]       # NSF Funded TACC Portal.
-# _BRANDING = [ _TACC_BRANDING, _UTEXAS_BRANDING, _UHAWAII_BRANDING ]        # TACC Portal w/ Specific Partners.
-# _BRANDING = [ _NSF_BRANDING, _TACC_BRANDING, _UTEXAS_BRANDING, _UHAWAII_BRANDING ]        # NSF Funded Portal w/ Specific Partners.
 
 ########################
-# LOGOS.
+# LOGOS
 
 _PORTAL_LOGO =  [
     "portal",
-    "site_cms/images/portal.png",
+    "site_cms/img/org_logos/portal.png",
     "",
     "/",
     "_self",
@@ -171,40 +247,78 @@ _PORTAL_LOGO =  [
     "True"
 ]
 
-_LCCF_LOGO = [
-    "lccf",
-    "site_cms/images/org_logos/lccf-white.png",
-    "",
-    "/",
-    "_self",
-    "LCCF Logo",
-    "anonymous",
-    "True"
-]
-
-_TAPISIO_LOGO =  [
-    "tapisio",
-    "site_cms/images/org_logos/tapis-logo-navbar.png",
-    "",
-    "/",
-    "_self",
-    "Tapis IO Logo",
-    "anonymous",
-    "True"
-]
-
-_TEXASCALE_LOGO =  [
-    "texascale",
-    "site_cms/images/org_logos/texascale-wordmark.png",
-    "",
-    "/",
-    "_self",
-    "Texascale Logo",
-    "anonymous",
-    "True"
-]
-
 _LOGO = _PORTAL_LOGO                # Default Portal Logo.
-# _LOGO = _LCCF_LOGO
-# _LOGO = _TAPISIO_LOGO
-# _LOGO = _TEXASCALE_LOGO
+
+########################
+# PORTAL
+########################
+
+_PORTAL = False     # True for any CMS that is part of a Portal.
+
+"""
+Portal Links
+
+Usage:
+
+- For each link used in the templating, add new links values (see example below).
+- New links must be added to the _PORTAL_AUTH_LINKS and _PORTAL_UNAUTH_LINKS lists.
+- The order of the _PORTAL_[…]_LINKS lists determine the rendering order of the elements.
+
+Values to populate:
+
+_NAMED_LINK = {                    # The name of the link object.
+    "name": "…",                       # The name of the link (to distinguish it, as if for ID).
+    "url": "…",                        # The URL path to which the link should navigate the user.
+    "text": "…",                       # The text of the link.
+    "icon": "…",                       # The icon of the link.
+}
+
+Links Configuration Example.
+
+_ANY_AUTH_LINK = {
+    "name": "section-1",
+    "url": "/some/section/",
+    "text": "Visit Section",
+    "icon": "some-section",
+}
+
+_ANY_UNAUTH_LINK = {
+    "name": "action-1",
+    "url": "/some-action/",
+    "text": "Do Action",
+    "icon": "some-action",
+}
+
+"""
+
+########################
+# LINKS (for Portal).
+
+_DASH_AUTH_LINK = {
+    "name": "dash",
+    "url": "/workbench/dashboard/",
+    "text": "My Dashboard",
+    "icon": "desktop",
+}
+_PROFILE_AUTH_LINK = {
+    "name": "profile",
+    "url": "/accounts/profile/",
+    "text": "My Account",
+    "icon": "user-circle",
+}
+_LOGOUT_AUTH_LINK = {
+    "name": "logout",
+    "url": "/accounts/logout/",
+    "text": "Log Out",
+    "icon": "sign-out-alt",
+}
+
+_LOGIN_UNAUTH_LINK = {
+    "name": "login",
+    "url": "/login/",
+    "text": "Log In",
+    "icon": "sign-in-alt",
+}
+
+_PORTAL_AUTH_LINKS = [ _DASH_AUTH_LINK, _PROFILE_AUTH_LINK, _LOGOUT_AUTH_LINK ]       # Default TACC Portal.
+_PORTAL_UNAUTH_LINKS = [ _LOGIN_UNAUTH_LINK ]                                         # Default TACC Portal.

@@ -1,47 +1,47 @@
 {
-  "name": "portal-cms",
-  "// version": "undefined",
-  "// license": "undefined",
-  "description": "The master CMS codebase for all downstream TACC stand alone CMS sites.",
-  "scripts": {
-    "build": "npm run build:css",
-    "build:css": "postcss \"taccsite_cms/static/site_cms/styles/exports/**/*.css\" --base taccsite_cms/static/site_cms/styles/exports --dir taccsite_cms/static/build/styles",
-    "watch": "npm-watch"
-  },
-  "// scripts": {
-    "build:css": "Compile files locally, to be committed to repo (quote glob to prevent OS parse)",
-    "build:css // SEE": "https://github.com/postcss/postcss-cli/issues/142#issuecomment-310681302",
-    "watch": "Compile files when they change",
-    "watch // NOTE": "The macOS operating system requires object-based conifguration",
-    "watch // NOTE // SEE": "https://github.com/M-Zuber/npm-watch/issues/35"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@gitlab.tacc.utexas.edu:wma-cms/cms-site-template.git"
-  },
-  "devDependencies": {
-    "cssnano": "^4.1.10",
-    "npm-watch": "^0.6.0",
-    "postcss-cli": "^7.1.0",
-    "postcss-import": "^12.0.1"
-  },
-  "postcss": {
-    "plugins": {
-      "postcss-import": {
-        "path": "./taccsite_cms/static/site_cms/styles"
-      },
-      "cssnano": {
-        "preset": "default"
-      }
-    }
-  },
-  "watch": {
-    "build:css": {
-      "patterns": [
-        "./taccsite_cms/static/site_cms/styles"
-      ],
-      "extensions": "css",
-      "runOnChangeOnly": false
-    }
-  }
+    "name": "portal-cms",
+    "version": "0.0.0",
+    "license": "MIT",
+    "description": "The core CMS codebase for all new and updated TACC CMS sites.",
+    "scripts": {
+        "build": "npm run build:css",
+        "build:css": "node postcss.js",
+        "watch": "npm-watch"
+    },
+    "// scripts": {
+        "build": "Run all static file build commands",
+        "build:css": "Build stylesheets from source files",
+        "watch": "Build static files when source files change"
+    },
+    "repository": "git@github.com:TACC/CORE-cms.git",
+    "devDependencies": {
+        "async": "^3.2.0",
+        "cssnano": "^4.1.10",
+        "dotenv": "^8.2.0",
+        "npm-watch": "^0.7.0",
+        "postcss-cli": "^7.1.2",
+        "postcss-css-variables": "^0.17.0",
+        "postcss-extend": "^1.0.5",
+        "postcss-import": "^12.0.1",
+        "yarn": "^1.22.5"
+    },
+    "watch": {
+        "build:css": {
+            "patterns": [
+                "./taccsite_cms/static/site_cms/css/src",
+                "./taccsite_custom/**/static/**/css/src"
+            ],
+            "extensions": "css",
+            "runOnChangeOnly": false
+        }
+    },
+    "// watch": {
+        "build:css": "macOS requires object-based conifguration",
+        "build:css // SEE": "https://github.com/M-Zuber/npm-watch/issues/35"
+    },
+    "resolutions": {
+        "dot-prop": ">=5.2.0"
+    },
+    "author": "TACC ACI WMA <wma-portals@gmail.com>",
+    "dependencies": {}
 }
