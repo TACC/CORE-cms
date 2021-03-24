@@ -1,35 +1,14 @@
-{% load i18n cache static custom_portal_settings %}
-
 {# WARNING: Some markup is duplicated in other repositories #}
 {# SEE: https://confluence.tacc.utexas.edu/x/LoCnCQ #}
+{# FAQ: Extra lines exist to ease CMS/Portal/Guide template comparison #}
 
-{% with settings.BRANDING as branding %}
 <!-- Sponsor Logos -->
-<div id="header-branding" class="c-branding">
-  {# DEBUG: #}{# <code>{{ branding|first }}</code> #}
-  {% for brand in branding %}
-    {% with filename=brand|index:1 selectors=brand|index:2 targeturl=brand|index:3 targetType=brand|index:4 accessibility=brand|index:5 corstype=brand|index:6 visibility=brand|index:7 %}
-      {% if visibility == "True" %}
-        <a href="{{ targeturl }}" target="{{ targettype }}" class="c-branding__link">
-          <img class="c-branding__image {{ selectors }}" src="{% static filename %}" crossorigin="{{ corstype }}" alt="{{ accessibility }}" >
-        </a>
-      {% endif %}
-    {% endwith %}
-  {% endfor %}
-</div>
-{% endwith %}
+{% include "header_branding.html" %}
 
-{% with settings.LOGO as logo %}
 <!-- Navigation Bar -->
 <nav id="s-header" class="s-header  navbar {% if settings.PORTAL %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} navbar-dark">
   <!-- Portal Logo -->
-  {% with filename=logo|index:1 selectors=logo|index:2 targeturl=logo|index:3 targetType=logo|index:4 accessibility=logo|index:5 corstype=logo|index:6 visibility=logo|index:7 %}
-    {% if visibility == "True" %}
-    <a class="navbar-brand" href="{{ targeturl }}" target="{{ targettype }}">
-      <img class="portal-logo {{ selectors }}" src="{% static filename %}" crossorigin="{{ corstype }}" alt="{{ accessibility }}" >
-    </a>
-    {% endif %}
-  {% endwith %}
+  {% include "header_logo.html" %}
 
   <!-- Navbar Accordian Toggle on Small Screens  -->
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExpandTarget" aria-controls="navbarsExpandTarget" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,4 +31,3 @@
     {% endif %}
   </div>
 </nav>
-{% endwith %}
