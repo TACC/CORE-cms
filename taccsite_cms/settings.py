@@ -15,6 +15,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import logging
 import os
 from glob import glob
+import re
 
 
 def gettext(s): return s
@@ -90,6 +91,7 @@ DEBUG = current_secrets._DEBUG
 ALLOWED_HOSTS = current_secrets._ALLOWED_HOSTS
 
 # Custom Branding.
+CUSTOM_ASSET_DIR = current_secrets._CUSTOM_ASSET_DIR
 BRANDING = current_secrets._BRANDING
 LOGO = current_secrets._LOGO
 FAVICON = current_secrets._FAVICON
@@ -138,6 +140,9 @@ TEMPLATES = [
         'DIRS': glob(
             os.path.join(BASE_DIR, 'taccsite_custom')
         ) + [
+            # NOTE: The goal is to support template inheritence for custom projects as if they are "Apps". Adding custom project directories to INSTALLED_APPS did not support inheritence.
+            os.path.join(BASE_DIR, 'taccsite_custom', CUSTOM_ASSET_DIR, 'templates', 'taccsite_cms')
+        ] + [
             os.path.join(BASE_DIR, 'taccsite_cms', 'templates')
         ],
         # 'APP_DIRS': True,
@@ -238,10 +243,16 @@ INSTALLED_APPS = [
     'taccsite_cms',
 ]
 
-# Convert list of paths to list of dotted module names
+# NOTE: Adding the `taccsite_custom` modules (like is attempted below) seems like the correct way to achieve template inheritence, but only manipulating `TEMPLATES` has been successful.
+
+# Compile list of paths as list of dotted module names
 def get_subdirs_as_module_names(path):
     module_names = []
     for entry in os.scandir(path):
+        # Exclude __init__, __pycache__, etc.
+        if re.match('^__.*', entry.name):
+            continue
+        # Exclude files
         if entry.is_dir():
             # FAQ: There are different root paths to tweak:
             #      - Containers use `/code/…`
@@ -254,7 +265,7 @@ def get_subdirs_as_module_names(path):
     return module_names
 
 # Append CMS project paths as module names to INSTALLED_APPS
-# FAQ: This automatically looks into `/taccsite_custom` and creates an "App" for each directory within
+# FAQ: From `/taccsite_custom`, add each project as an "App"
 CUSTOM_CMS_DIR = os.path.join(BASE_DIR, 'taccsite_custom')
 INSTALLED_APPS_APPEND = get_subdirs_as_module_names(CUSTOM_CMS_DIR)
 INSTALLED_APPS = INSTALLED_APPS + INSTALLED_APPS_APPEND
