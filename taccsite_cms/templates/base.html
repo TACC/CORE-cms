@@ -1,4 +1,4 @@
-{% load cms_tags staticfiles sekizai_tags cache i18n %}
+{% load cms_tags staticfiles sekizai_tags cache i18n custom_portal_settings %}
 <!doctype html>
 <html
   id="page-{{ request.current_page.id }}"
@@ -57,9 +57,7 @@
   {% cms_toolbar %}
 
   <!-- Custom Navigation Block per Site to Customize the Site Header Branding. -->
-  <div class="o-site__head">
-    {% include "header.html" %}
-  </div>
+  {% include "header.html" with className="o-site__head" hasPortal=True %}
 
   <!-- Page content. -->
   <div id="cms-content" class="o-site o-site__body">

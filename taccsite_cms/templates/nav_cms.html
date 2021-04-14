@@ -1,9 +1,9 @@
-{# @var className #}
+{# @var className, hasPortal #}
 {% load menu_tags %}
 
 {# WARNING: Some markup is duplicated in other repositories #}
 {# SEE: https://confluence.tacc.utexas.edu/x/LoCnCQ #}
-<ul class="s-cms-nav  {{className}}">
+<ul class="s-cms-nav  {{className}}  {% if not hasPortal %}ml-auto{% endif %}">
   <!-- All top-level CMS controlled nav elements handled here. -->
   {# Path must be relative to templates' root dir #}
   {# FAQ: If template is included with `only`, then it does NOT render `show_menu` #}
