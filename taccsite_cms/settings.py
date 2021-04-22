@@ -91,7 +91,13 @@ ALLOWED_HOSTS = current_secrets._ALLOWED_HOSTS
 
 # Custom Branding.
 BRANDING = current_secrets._BRANDING
-LOGO  = current_secrets._LOGO
+LOGO = current_secrets._LOGO
+FAVICON = current_secrets._FAVICON
+
+# Configure Portal.
+PORTAL = current_secrets._PORTAL
+PORTAL_AUTH_LINKS = current_secrets._PORTAL_AUTH_LINKS
+PORTAL_UNAUTH_LINKS = current_secrets._PORTAL_UNAUTH_LINKS
 
 # Optional features.
 FEATURES = current_secrets._FEATURES
@@ -151,7 +157,10 @@ TEMPLATES = [
                 'django_settings_export.settings_export'
             ],
             'libraries': {
+                # NOTE: These are an unnecessary alternative config, because taccsite_cms is in INSTALLED_APPS, but are comfortably explicit
+                # SEE: https://docs.djangoproject.com/en/3.1/howto/custom-template-tags/#code-layout
                 'custom_portal_settings': 'taccsite_cms.templatetags.custom_portal_settings',
+                'tacc_uri_shortcuts': 'taccsite_cms.templatetags.tacc_uri_shortcuts',
             },
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -226,7 +235,14 @@ INSTALLED_APPS = [
     'djangocms_bootstrap4.contrib.bootstrap4_tabs',
     'djangocms_bootstrap4.contrib.bootstrap4_utilities',
     'haystack',
+    'aldryn_apphooks_config',
+    # For faster testing, disable migrations during database creation
+    # SEE: https://stackoverflow.com/a/37150997
+    'test_without_migrations',
     'taccsite_cms',
+    # TODO: Extract TACC CMS UI components into pip-installable plugins
+    # FAQ: The djangocms_bootstrap4 library can serve as an example
+    'taccsite_cms.contrib.taccsite_sample',
 ]
 
 # Convert list of paths to list of dotted module names
@@ -254,13 +270,15 @@ INSTALLED_APPS = INSTALLED_APPS + INSTALLED_APPS_APPEND
 if CONSOLE_LOG_ENABLED:
     print("--> Variable INSTALLED_APPS: ", INSTALLED_APPS)
 
-# Comment the LDAPBackend to use local django auth
 AUTHENTICATION_BACKENDS = [
-    # "django_auth_ldap.backend.LDAPBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
 if LDAP_ENABLED:
+    AUTHENTICATION_BACKENDS.insert(0,
+        "django_auth_ldap.backend.LDAPBackend"
+    )
+
     ''' LDAP Auth Settings '''
     AUTH_LDAP_SERVER_URI = "ldap://ldap.tacc.utexas.edu"
     AUTH_LDAP_CONNECTION_OPTIONS = {ldap.OPT_REFERRALS: 0}
@@ -367,7 +385,6 @@ if current_secrets._FEATURES['blog']:
         # Blog/News
         # 'filer',              # Already added
         # 'easy_thumbnails',    # Already added
-        'aldryn_apphooks_config',
         'parler',
         'taggit',
         'taggit_autosuggest',
@@ -403,6 +420,9 @@ if current_secrets._FEATURES['blog']:
 
 DJANGOCMS_PICTURE_NESTING = True
 DJANGOCMS_PICTURE_RESPONSIVE_IMAGES = True
+DJANGOCMS_PICTURE_RESPONSIVE_IMAGES_VIEWPORT_BREAKPOINTS = [
+    576, 768, 992, 1200, 1400, 1680, 1920
+]
 DJANGOCMS_PICTURE_RATIO = 1.618
 
 # FILE UPLOAD VALUES MUST BE SET!
@@ -448,6 +468,10 @@ GOOGLE_ANALYTICS_PRELOAD = current_secrets._GOOGLE_ANALYTICS_PRELOAD
 SETTINGS_EXPORT_VARIABLE_NAME = 'settings'
 
 # Elasticsearch Indexing
+HAYSTACK_ROUTERS = ['aldryn_search.router.LanguageRouter',]
+HAYSTACK_SIGNAL_PROCESSOR = 'taccsite_cms.signal_processor.RealtimeSignalProcessor'
+ALDRYN_SEARCH_DEFAULT_LANGUAGE = 'en'
+ALDRYN_SEARCH_REGISTER_APPHOOK = True
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
@@ -464,6 +488,10 @@ SETTINGS_EXPORT = [
     'DEBUG',
     'BRANDING',
     'LOGO',
+    'FAVICON',
+    'PORTAL',
+    'PORTAL_AUTH_LINKS',
+    'PORTAL_UNAUTH_LINKS',
     'FEATURES',
     'GOOGLE_ANALYTICS_PROPERTY_ID',
     'GOOGLE_ANALYTICS_PRELOAD'

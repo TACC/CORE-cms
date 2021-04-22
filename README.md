@@ -1,19 +1,49 @@
-# TACC CMS
+# TACC CORE-CMS
 
 ## Docker Setup
 
-A TACC CMS can be run using Docker and Docker Compose both locally or in production.
+The TACC CORE-CMS can be run using Docker and Docker Compose, both locally and in production.
 
 ## Configuration
 
 ### Required
 
-1. Create a `.env` at the root of the project, with the content `CUSTOM_ASSET_DIR=example-cms`.
-1. Initialize submodules and retireve the latest relevant code.
-    1. `git submodule init` (only necessary once)
-        - Add `cms-site-resources` repo as `taccsite_custom/`.
-    2. `git submodule update`
-        - Get latest desired submodule commit (this adds directory content).
+1. Create a `.env` with this content\* at the root of the project:
+
+    ```bash
+    CUSTOM_ASSET_DIR=example-cms
+    ```
+
+    \* Where `example-cms` is the project to be run. _See [(Optional) Custom Resources per CMS Project](#optional-custom-resources-per-cms-project)._
+1. Initialize / Update submodules.
+    1. `git submodule init`\
+        _(Adds `cms-site-resources` repo as submodule at `taccsite_custom/`. Only necessary once per `CORE-cms` repo clone.)_
+    2. `git submodule update`\
+        _(Downloads code from pinned commit of `cms-site-resources` repo to `taccsite_custom/`.)_
+    3. (as necessary) Change the pinned commit of submodule.\
+        _(Downloads code from different commit of `cms-site-resources` repo to `taccsite_custom/`.)_
+
+        ```bash
+        # Navigate into submodule (from root of this repo)
+        cd taccsite_custom
+        # Checkout different commit of submodule repo
+        git checkout master_or_other_branch_or_commit
+        # Update commit of submodule repo (as necessary)
+        git pull # (or git fetch […], etc.)
+        ```
+
+    4. (as necessary) Save/Commit the pinned commit of submodule.\
+        _(Updates the pinned commit of `cms-site-resources` repo at `taccsite_custom/`.)_
+
+        ```bash
+        # Navigate back to this repo (from root of submodule repo)
+        cd ../
+        # Commit this repo's pointer to a different commit of submodule repo
+        git add taccsite_custom
+        git commit -m "[…] Update submodule to get […]"
+        ```
+
+<!-- IDEA: For brevity, consider moving steps 3 and 4 to a different section or document -->
 
 ### For Isolated Instance Like Production
 
@@ -164,7 +194,7 @@ Certain static files are built __from__ source files __in__ `src` directories __
     > __Notice__: If you are using a `docker-compose.custom.yml`, then replace this command's `taccsite_cms` with that file's `cms`: `hostname`.
 
     ```bash
-    docker exec -it taccsite_cms /bin/bash
+    docker exec -it core_cms /bin/bash
     ```
 
     _It is __not__ necessary to run the next commands in the Docker container, but it does completely __isolate development__ and __mimic production__._
@@ -198,7 +228,7 @@ Whenever static files are changed, the CMS may need to be manually told to serve
     > __Notice__: If you are using a `docker-compose.custom.yml`, then replace this command's `taccsite_cms` with that file's `cms`: `hostname`.
 
     ```bash
-    docker exec -it taccsite_cms /bin/bash
+    docker exec -it core_cms /bin/bash
     ```
 
 2. [Collect static files][django-static] for Django:
@@ -216,8 +246,33 @@ Whenever static files are changed, the CMS may need to be manually told to serve
 5. (For templates) Restart server.
 6. Commit changes:
     1. In `/taccsite_custom` submodule repo, commit changes (__not__ to `master`).
-    2. In `cms-site-template` parent repo, add `/taccsite_custom` change.
-    3. In `cms-site-template` parent repo, commit changes (__not__ to `master`).
+    2. In this parent repo, add `/taccsite_custom` change.
+    3. In this parent repo, commit changes (__not__ to `main`).
+
+## How to Run Tests
+
+### Test TACC CMS Plugins
+
+Testing is run through Django. From within `core_cms` container, run `python manage.py test PATH_TO_DIR_WITH_TESTS` from the repository root directory. Example:
+
+```bash
+docker exec -it core_cms /bin/bash
+python manage.py test taccsite_cms.contrib.taccsite_sample
+```
+
+> __Notice__: To test without migrations—which is _much_ faster—add the flag `--nomigrations` (or `-n`). Example:
+> 
+> ```bash
+> docker exec -it core_cms /bin/bash
+> python manage.py test taccsite_cms.contrib.taccsite_sample --nomigrations
+> ```
+
+<!-- TODO: Make `python manage.py test` recursively find all the tests -->
+<!-- SEE: https://docs.djangoproject.com/en/2.2/topics/testing/overview/#running-tests -->
+
+### Test PostCSS Plugin Configs
+
+Testing is manual review of build output. From within `core_cms` container, run `npm run build` from the repository root directory, then review `taccsite_cms/static/site_cms/css/build/_test.css`.
 
 ## Reference
 
