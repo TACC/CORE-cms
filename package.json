@@ -6,9 +6,11 @@
     "scripts": {
         "build": "npm run build:css",
         "build:css": "node postcss.js",
-        "watch": "npm-watch"
+        "watch": "npm-watch",
+        "settings": "python3 taccsite_cms/settings_to_json.py"
     },
     "// scripts": {
+        "prebuild": "Export Django settings to JSON (for Node to use)",
         "build": "Run all static file build commands",
         "build:css": "Build stylesheets from source files",
         "watch": "Build static files when source files change"
@@ -18,11 +20,13 @@
         "async": "^3.2.0",
         "cssnano": "^4.1.10",
         "dotenv": "^8.2.0",
+        "merge-lite": "^1.0.2",
         "npm-watch": "^0.7.0",
         "postcss-cli": "^7.1.2",
         "postcss-css-variables": "^0.17.0",
         "postcss-extend": "^1.0.5",
         "postcss-import": "^12.0.1",
+        "postcss-nesting": "^7.0.1",
         "postcss-preset-env": "^6.7.0",
         "yarn": "^1.22.5"
     },
